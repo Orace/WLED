@@ -90,6 +90,10 @@ public:
       segments[0].setOption(SEG_OPTION_ON, nextIsOn, 0);
       segments[0].setOption(SEG_OPTION_TRANSITIONAL, true, 0);
       colorUpdated(CALL_MODE_DIRECT_CHANGE);
+
+      if (!nextIsOn != !bri)
+        toggleOnOff();
+
       return;
     }
 
@@ -121,6 +125,7 @@ public:
     }
 
     hasChanged = false;
+    bool nextIsOn = false;
 
     WS2812FX::Segment *segment = segments;
     for (int i = 0; i < 14 && i < MAX_NUM_SEGMENTS; i++, segment++)
@@ -130,17 +135,18 @@ public:
         break;
       }
 
-      bool isOn = segment->getOption(SEG_OPTION_ON);
+      bool isSegmentOn = segment->getOption(SEG_OPTION_ON);
       uint8_t level = levelArray[i];
-      bool nextIsOn = level > 0;      
+      bool nextIsSegmentOn = level > 0;
+      nextIsOn |= nextIsSegmentOn;
 
-      if (isOn == nextIsOn && segment->opacity == level)
+      if (isSegmentOn == nextIsSegmentOn && segment->opacity == level)
       {
         continue;
       }
 
       hasChanged = true;
-      segment->setOption(SEG_OPTION_ON, nextIsOn, i);
+      segment->setOption(SEG_OPTION_ON, nextIsSegmentOn, i);
       segment->setOpacity(level, i);
       segment->setOption(SEG_OPTION_TRANSITIONAL, true, i);
     }
@@ -148,6 +154,8 @@ public:
     if (hasChanged)
     {
       colorUpdated(CALL_MODE_DIRECT_CHANGE);
+      if (!nextIsOn != !bri)
+        toggleOnOff();
     }
   }
 
