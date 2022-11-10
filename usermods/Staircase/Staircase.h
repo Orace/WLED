@@ -51,6 +51,14 @@ public:
       {
         isOnArray[index] = isOn;
         hasChanged = true;
+
+        if (mqtt != nullptr) {
+          char subuf[38];
+          strcpy(subuf, mqttDeviceTopic);
+          strcat(subuf, "/sensor/");
+          strcat(subuf, String(index).c_str());
+          mqtt->publish(subuf, 0, true, isOn ? "on" : "off");
+        }
       }
     }
 
